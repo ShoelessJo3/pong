@@ -1,18 +1,33 @@
 var game = new Phaser.Game(1280, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render});
 
+var gameProperties = {
+    screenWidth: 640,
+    screenHeight: 480,
+    
+    dashSize: 5,
+    
+    paddleLeft_x: 50,
+    paddleRight_x: 590,
+        ballVelocity: 750,
+    ballStartDelay: 2,
+    ballRandomStartingAngleLeft: [-120, 120],
+    ballRandomStartingAngleRight: [-60, 60],
+    paddleSpeed: 700,
+}
 function init(){
 
 	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 	game.scale.pageAlignHorizontally = true;
 	game.scale.pageAlignVertically= true;
+	
 }
 
 function preload() {
  game.load.image('paddle', 'assets/sprites/betterpaddle.png');
- game.load.image('ball', 'assets/sprites/ball.png');
-game.load.bitmapFont('carrier_command', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
+ game.load.image('ball', 'assets/sprites/ball2.png');
+ game.load.bitmapFont('carrier_command', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
 }
-//
+//a
 var paddle1;
 var cursors;
 var customBounds;
@@ -25,65 +40,70 @@ function create() {
 	game.world.setBounds(0, 0, 1280, 600);
 
     //  Enable P2 and it will use the updated world size
-    game.physics.startSystem(Phaser.Physics.P2JS);
+    game.physics.startSystem(Phaser.Physics.ARCADE);
 
+    ball = game.add.sprite(500,300, 'ball');
+    ball.scale.set(3);
+    ball.smoothed = false;
+    //game.physics.p2.enable(ball, false);
+    //ball.body.setCircle(35);
+    //ball.body.fixedRotation = true;
+    //ball.body.moveRight(400);
+    ball.anchor.set(0.5,0.5);
+    game.physics.enable(ball, Phaser.Physics.ARCADE);
+
+        ball.checkWorldBounds = true;
+        ball.body.enable = true;
+        ball.body.collideWorldBounds = true;
+        ball.body.immovable = true;
+        ball.body.bounce.set(1);
+    ball.body.velocity.x = 350;
     
 
 	paddle1 = game.add.sprite(100, 10, 'paddle');
+	game.physics.enable(paddle1, Phaser.Physics.ARCADE);
     paddle1.scale.set(4);
     paddle1.smoothed = false;
-    game.physics.p2.enable(paddle1, false);
-    paddle1.body.fixedRotation = true;
-    paddle1.body.damping = .5;
+    paddle1.checkWorldBounds = true;
+    paddle1.body.collideWorldBounds = true;
+    paddle1.body.immovable = true;
+    paddle1.body.bounce.set(1);
+    paddle1.body.enable = true;
+    //game.physics.p2.enable(paddle1, false);
+    //paddle1.body.fixedRotation = true;
+    //paddle1.body.damping = .5;
+
+
 
     paddle2 = game.add.sprite(1180,10, 'paddle');
+    game.physics.enable(paddle2, Phaser.Physics.ARCADE);
     paddle2.scale.set(4);
     paddle2.smoothed = false;
-    game.physics.p2.enable(paddle2, false);
-    paddle2.body.fixedRotation = true;
-    paddle2.body.damping = .5;
+     paddle2.scale.set(4);
+    paddle2.smoothed = false;
+    paddle2.checkWorldBounds = true;
+    paddle2.body.collideWorldBounds = true;
+    paddle2.body.immovable = true;
+    paddle2.body.bounce.set(1);
+       paddle2.body.enable = true;
+    //game.physics.p2.enable(paddle2, false);
+    //paddle2.body.fixedRotation = true;
+    //paddle2.body.damping = .5;
 
-    var spriteMaterial = game.physics.p2.createMaterial('spriteMaterial', paddle1.body);
-    var spriteMaterial2 = game.physics.p2.createMaterial('spriteMaterial2', paddle2.body);
+    //var spriteMaterial = game.physics.p2.createMaterial('spriteMaterial', paddle1.body);
+    //var spriteMaterial2 = game.physics.p2.createMaterial('spriteMaterial2', paddle2.body);
+    //var spriteBall = game.physics.p2.createMaterial('spriteBall', ball.body);
 
-    var worldMaterial = game.physics.p2.createMaterial('worldMaterial');
+
+    //var worldMaterial = game.physics.p2.createMaterial('worldMaterial');
 
     //  4 trues = the 4 faces of the world in left, right, top, bottom order
-    game.physics.p2.setWorldMaterial(worldMaterial, true, true, true, true);
+    //game.physics.p2.setWorldMaterial(worldMaterial, true, true, true, true);
 
     //  Here is the contact material. It's a combination of 2 materials, so whenever shapes with
     //  those 2 materials collide it uses the following settings.
     //  A single material can be used by as many different sprites as you like.
-    var contactMaterial = game.physics.p2.createContactMaterial(spriteMaterial, worldMaterial, spriteMaterial);
-
-    contactMaterial.friction = 0.3;     // Friction to use in the contact of these two materials.
-    contactMaterial.restitution = 1.0;  // Restitution (i.e. how bouncy it is!) to use in the contact of these two materials.
-    contactMaterial.stiffness = 1e7;    // Stiffness of the resulting ContactEquation that this ContactMaterial generate.
-    contactMaterial.relaxation = 3;     // Relaxation of the resulting ContactEquation that this ContactMaterial generate.
-    contactMaterial.frictionStiffness = 1e7;    // Stiffness of the resulting FrictionEquation that this ContactMaterial generate.
-    contactMaterial.frictionRelaxation = 3;     // Relaxation of the resulting FrictionEquation that this ContactMaterial generate.
-    contactMaterial.surfaceVelocity = 0;        // Will add surface velocity to this material. If bodyA rests on top if bodyB, and the surface velocity is positive, bodyA will slide to the right.
-
-
-var contactMaterial2 = game.physics.p2.createContactMaterial(spriteMaterial2, worldMaterial);
-
-    contactMaterial2.friction = 0.3;     // Friction to use in the contact of these two materials.
-    contactMaterial2.restitution = 1.0;  // Restitution (i.e. how bouncy it is!) to use in the contact of these two materials.
-    contactMaterial2.stiffness = 1e7;    // Stiffness of the resulting ContactEquation that this ContactMaterial generate.
-    contactMaterial2.relaxation = 3;     // Relaxation of the resulting ContactEquation that this ContactMaterial generate.
-    contactMaterial2.frictionStiffness = 1e7;    // Stiffness of the resulting FrictionEquation that this ContactMaterial generate.
-    contactMaterial2.frictionRelaxation = 3;     // Relaxation of the resulting FrictionEquation that this ContactMaterial generate.
-    contactMaterial2.surfaceVelocity = 0;        // Will add surface velocity to this material. If bodyA rests on top if bodyB, and the surface velocity is positive, bodyA will slide to the right.
-
-
-
-    //  Create our physics body. The 'true' parameter enables visual debugging.
-
-
-
-    //  Alternatively create a circle for the ship instead (which more accurately matches its size)
-    // ship.body.setCircle(28);
-
+    
 
 
     
@@ -91,10 +111,26 @@ var contactMaterial2 = game.physics.p2.createContactMaterial(spriteMaterial2, wo
 
     //game.physics.p2.gravity.y = 100;
     //  Just to display the bounds
+  
+        //game.time.events.add(Phaser.Timer.SECOND * gameProperties.ballStartDelay, game.startBall, game);
+
+ 
+        
+        //var randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight.concat(gameProperties.ballRandomStartingAngleLeft));
+        
+        //game.physics.arcade.velocityFromAngle(randomAngle, gameProperties.ballVelocity, game.ballSprite.body.velocity);
 
 
     cursors = game.input.keyboard.createCursorKeys();
+
+    //var lock = true;
+    //bmpText = game.add.bitmapText(270, 500, 'carrier_command', 'Press Enter to Start', 46);
+
+    		
+    
+
     bmpText = game.add.bitmapText(270, 500, 'carrier_command', 'Player 1: Q&A \nPlayer 2: O&L', 46);
+
     
 
 
@@ -103,17 +139,20 @@ var contactMaterial2 = game.physics.p2.createContactMaterial(spriteMaterial2, wo
 
 
 
+
+
 function update(){
 
-	//paddle1.body.setZeroXVelocity();
+	paddle1.body.velocity.y = 0;
+	paddle2.body.velocity.y = 0;
 
     if (game.input.keyboard.isDown(Phaser.Keyboard.Q))
     {
-    	paddle1.body.moveUp(350);
+    	paddle1.body.velocity.y = -gameProperties.paddleSpeed;
     }
     else if (game.input.keyboard.isDown(Phaser.Keyboard.A))
     {
-        paddle1.body.moveDown(350);
+        paddle1.body.velocity.y = gameProperties.paddleSpeed;
     }
     if(paddle1.body.x != 100)
     {
@@ -122,19 +161,65 @@ function update(){
 
     if (game.input.keyboard.isDown(Phaser.Keyboard.O))
     {
-    	paddle2.body.moveUp(350);
+    	paddle2.body.velocity.y = -gameProperties.paddleSpeed;
     }
     else if (game.input.keyboard.isDown(Phaser.Keyboard.L))
     {
-        paddle2.body.moveDown(350);
+        paddle2.body.velocity.y = gameProperties.paddleSpeed;
     }
     if(paddle2.body.x != 1180)
     {
     	paddle2.body.x = 1180;
     }
 
+game.physics.arcade.collide(ball, paddle2, collisionHandler, null, game);
+game.physics.arcade.collide(ball, paddle1, collisionHandler, null, game);
 
 }
+
+function collisionHandler (ball, paddle) {
+
+    game.stage.backgroundColor = '#FFF';
+    game.time.events.add(Phaser.Timer.SECOND * .1, flash, game);
+    var returnAngle = 0;
+    var segmentHit = Math.floor(ball.y - paddle.y);
+    if(segmentHit <= 5/8 * paddle.height && segmentHit >= 3/8 * paddle.height && paddle.x < gameProperties.screenWidth * 0.5)
+   	{
+   		game.physics.arcade.velocityFromAngle(0, gameProperties.ballVelocity, ball.body.velocity);
+   	}
+        
+    else if(segmentHit >= paddle.height/2 && paddle.x < gameProperties.screenWidth * 0.5)
+    {
+        game.physics.arcade.velocityFromAngle(45, gameProperties.ballVelocity, ball.body.velocity);
+    }
+    else if (paddle.x < gameProperties.screenWidth * 0.5&& paddle.x  < gameProperties.screenWidth * 0.5)
+    {
+    	game.physics.arcade.velocityFromAngle(315, gameProperties.ballVelocity, ball.body.velocity);
+    }
+
+    if(segmentHit <= 5/8 * paddle.height && segmentHit >= 3/8 * paddle.height && paddle.x > gameProperties.screenWidth * 0.5)
+   	{
+   		game.physics.arcade.velocityFromAngle(180, gameProperties.ballVelocity, ball.body.velocity);
+   	}
+        
+    else if(segmentHit >= paddle.height/2 && paddle.x > gameProperties.screenWidth * 0.5)
+    {
+        game.physics.arcade.velocityFromAngle(135, gameProperties.ballVelocity, ball.body.velocity);
+    }
+    else if (paddle.x > gameProperties.screenWidth * 0.5)
+    {
+    	game.physics.arcade.velocityFromAngle(225, gameProperties.ballVelocity, ball.body.velocity);
+    }
+
+    
+    
+
+}
+function flash()
+{
+	game.stage.backgroundColor = '#000';
+}
+
 
 function render(){
 
