@@ -12,6 +12,7 @@ function preload() {
  game.load.image('ball', 'assets/sprites/ball.png');
 game.load.bitmapFont('carrier_command', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
 }
+//
 var paddle1;
 var cursors;
 var customBounds;
@@ -43,6 +44,7 @@ function create() {
     paddle2.body.damping = .5;
 
     var spriteMaterial = game.physics.p2.createMaterial('spriteMaterial', paddle1.body);
+    var spriteMaterial2 = game.physics.p2.createMaterial('spriteMaterial2', paddle2.body);
 
     var worldMaterial = game.physics.p2.createMaterial('worldMaterial');
 
@@ -52,7 +54,7 @@ function create() {
     //  Here is the contact material. It's a combination of 2 materials, so whenever shapes with
     //  those 2 materials collide it uses the following settings.
     //  A single material can be used by as many different sprites as you like.
-    var contactMaterial = game.physics.p2.createContactMaterial(spriteMaterial, worldMaterial);
+    var contactMaterial = game.physics.p2.createContactMaterial(spriteMaterial, worldMaterial, spriteMaterial);
 
     contactMaterial.friction = 0.3;     // Friction to use in the contact of these two materials.
     contactMaterial.restitution = 1.0;  // Restitution (i.e. how bouncy it is!) to use in the contact of these two materials.
@@ -61,6 +63,17 @@ function create() {
     contactMaterial.frictionStiffness = 1e7;    // Stiffness of the resulting FrictionEquation that this ContactMaterial generate.
     contactMaterial.frictionRelaxation = 3;     // Relaxation of the resulting FrictionEquation that this ContactMaterial generate.
     contactMaterial.surfaceVelocity = 0;        // Will add surface velocity to this material. If bodyA rests on top if bodyB, and the surface velocity is positive, bodyA will slide to the right.
+
+
+var contactMaterial2 = game.physics.p2.createContactMaterial(spriteMaterial2, worldMaterial);
+
+    contactMaterial2.friction = 0.3;     // Friction to use in the contact of these two materials.
+    contactMaterial2.restitution = 1.0;  // Restitution (i.e. how bouncy it is!) to use in the contact of these two materials.
+    contactMaterial2.stiffness = 1e7;    // Stiffness of the resulting ContactEquation that this ContactMaterial generate.
+    contactMaterial2.relaxation = 3;     // Relaxation of the resulting ContactEquation that this ContactMaterial generate.
+    contactMaterial2.frictionStiffness = 1e7;    // Stiffness of the resulting FrictionEquation that this ContactMaterial generate.
+    contactMaterial2.frictionRelaxation = 3;     // Relaxation of the resulting FrictionEquation that this ContactMaterial generate.
+    contactMaterial2.surfaceVelocity = 0;        // Will add surface velocity to this material. If bodyA rests on top if bodyB, and the surface velocity is positive, bodyA will slide to the right.
 
 
 
