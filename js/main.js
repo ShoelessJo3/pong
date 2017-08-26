@@ -32,6 +32,7 @@ function startDemo()
 	 game.paused = true;
 	 game.input.onDown.add(unpause, self);
 	 startBall();
+	 
 
 }
 
@@ -147,7 +148,7 @@ function create() {
 
     bmpText = game.add.bitmapText(270, 500, 'carrier_command', 'Player 1: Q&A \nPlayer 2: O&L', 46);
   	scoreText = game.add.bitmapText(270, 0, 'carrier_command', 'Player 1:' + scorePlayer1 + ' Player 2:' + scorePlayer2, 24);
-
+  	winText =  game.add.bitmapText(270, 50, 'carrier_command',"Click anywhere to start.", 24);
   	startDemo();    
 }
 
@@ -230,7 +231,7 @@ game.physics.arcade.collide(ball, paddle1, collisionHandler, null, game);
 
 function win(player)
 {
-	winText = game.add.bitmapText(270, 50, 'carrier_command', player + " won the game!", 24);
+	winText = game.add.bitmapText(270, 50, 'carrier_command', player + " won the game!\n Click anywhere to restart.", 24);
 	scorePlayer1 = 0;
 	scorePlayer2 = 0;
 	startDemo();
