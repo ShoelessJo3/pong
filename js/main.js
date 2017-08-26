@@ -13,7 +13,7 @@ var gameProperties = {
     ballRandomStartingAngleLeft: [-120, 120],
     ballRandomStartingAngleRight: [-60, 60],
     paddleSpeed: 700,
-    scoreToWin: 10,
+    scoreToWin: 11,
     startx: 650,
     starty: 300,
 }
@@ -26,6 +26,24 @@ var scoreText;
 
 
 
+
+function startDemo()
+{
+	 game.paused = true;
+	 game.input.onDown.add(unpause, self);
+	 startBall();
+
+}
+
+function unpause(event)
+{
+	if(game.paused)
+	{
+		game.paused = false;
+		console.log(event);
+		winText.setText('');
+	}
+}
 
 function init(){
 
@@ -51,6 +69,7 @@ function startBall(){
 
 
 //a
+var winText;
 var paddle1;
 var cursors;
 var customBounds;
@@ -108,55 +127,20 @@ function create() {
     game.physics.enable(paddle2, Phaser.Physics.ARCADE);
     paddle2.scale.set(4);
     paddle2.smoothed = false;
-     paddle2.scale.set(4);
+    paddle2.scale.set(4);
     paddle2.smoothed = false;
     paddle2.checkWorldBounds = true;
     paddle2.body.collideWorldBounds = true;
     paddle2.body.immovable = true;
     paddle2.body.bounce.set(1);
-       paddle2.body.enable = true;
-
-
-     startBall();
-    //game.physics.p2.enable(paddle2, false);
-    //paddle2.body.fixedRotation = true;
-    //paddle2.body.damping = .5;
-
-    //var spriteMaterial = game.physics.p2.createMaterial('spriteMaterial', paddle1.body);
-    //var spriteMaterial2 = game.physics.p2.createMaterial('spriteMaterial2', paddle2.body);
-    //var spriteBall = game.physics.p2.createMaterial('spriteBall', ball.body);
-
-
-    //var worldMaterial = game.physics.p2.createMaterial('worldMaterial');
-
-    //  4 trues = the 4 faces of the world in left, right, top, bottom order
-    //game.physics.p2.setWorldMaterial(worldMaterial, true, true, true, true);
-
-    //  Here is the contact material. It's a combination of 2 materials, so whenever shapes with
-    //  those 2 materials collide it uses the following settings.
-    //  A single material can be used by as many different sprites as you like.
-    
-
-
-    
-    
-
-    //game.physics.p2.gravity.y = 100;
-    //  Just to display the bounds
-  
-        //game.time.events.add(Phaser.Timer.SECOND * gameProperties.ballStartDelay, game.startBall, game);
-
- 
-        
-        //var randomAngle = game.rnd.pick(gameProperties.ballRandomStartingAngleRight.concat(gameProperties.ballRandomStartingAngleLeft));
-        
-        //game.physics.arcade.velocityFromAngle(randomAngle, gameProperties.ballVelocity, game.ballSprite.body.velocity);
-
+    paddle2.body.enable = true;
 
     cursors = game.input.keyboard.createCursorKeys();
 
     //var lock = true;
     //bmpText = game.add.bitmapText(270, 500, 'carrier_command', 'Press Enter to Start', 46);
+
+     game.input.mouse.capture = true;
 
     		
     
@@ -164,8 +148,7 @@ function create() {
     bmpText = game.add.bitmapText(270, 500, 'carrier_command', 'Player 1: Q&A \nPlayer 2: O&L', 46);
   	scoreText = game.add.bitmapText(270, 0, 'carrier_command', 'Player 1:' + scorePlayer1 + ' Player 2:' + scorePlayer2, 24);
 
-
-    
+  	startDemo();    
 }
 
 
@@ -232,7 +215,25 @@ game.physics.arcade.collide(ball, paddle1, collisionHandler, null, game);
 	}
 		//scoreText.destroy();
 	 	scoreText.setText('Player 1:' + scorePlayer1 + ' Player 2:' + scorePlayer2, 24);
-	
+
+	if(scorePlayer1 >= gameProperties.scoreToWin)
+	{
+		win("player1");
+	}
+
+	if(scorePlayer2 >= gameProperties.scoreToWin)
+	{
+		win("player2");
+	}	
+
+}
+
+function win(player)
+{
+	winText = game.add.bitmapText(270, 50, 'carrier_command', player + " won the game!", 24);
+	scorePlayer1 = 0;
+	scorePlayer2 = 0;
+	startDemo();
 
 }
 
