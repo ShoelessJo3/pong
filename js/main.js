@@ -8,17 +8,31 @@ var gameProperties = {
     
     paddleLeft_x: 50,
     paddleRight_x: 590,
-        ballVelocity: 750,
+    ballVelocity: 750,
     ballStartDelay: 2,
     ballRandomStartingAngleLeft: [-120, 120],
     ballRandomStartingAngleRight: [-60, 60],
     paddleSpeed: 700,
+    scoreToWin: 10,
+    startx: 650,
+    starty: 300,
 }
+
+var scorePlayer1 = 0;
+var scorePlayer2 = 0;
+var startDirection = 1;
+var scoreText;
+
+
+
+
+
 function init(){
 
 	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
 	game.scale.pageAlignHorizontally = true;
 	game.scale.pageAlignVertically= true;
+
 	
 }
 
@@ -27,12 +41,22 @@ function preload() {
  game.load.image('ball', 'assets/sprites/ball2.png');
  game.load.bitmapFont('carrier_command', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
 }
+
+function startBall(){
+	ball.reset(gameProperties.startx, gameProperties.starty);
+	//ball.body.velocity.x = 350;
+
+	ball.body.velocity.x = startDirection*350;
+}
+
+
 //a
 var paddle1;
 var cursors;
 var customBounds;
 var font;
 function create() {
+	
 	
 	var i = game.add.image(100,100,font)
 	var bounds = new Phaser.Rectangle(100, 100, 400, 400);
@@ -42,7 +66,7 @@ function create() {
     //  Enable P2 and it will use the updated world size
     game.physics.startSystem(Phaser.Physics.ARCADE);
 
-    ball = game.add.sprite(500,300, 'ball');
+    ball = game.add.sprite(gameProperties.startx,gameProperties.starty, 'ball');
     ball.scale.set(3);
     ball.smoothed = false;
     //game.physics.p2.enable(ball, false);
@@ -57,7 +81,12 @@ function create() {
         ball.body.collideWorldBounds = true;
         ball.body.immovable = true;
         ball.body.bounce.set(1);
-    ball.body.velocity.x = 350;
+    
+    startDirection = 1;
+	if(game.rnd.between(0,1) == 0)
+	{
+		startDirection = -1;
+	}
     
 
 	paddle1 = game.add.sprite(100, 10, 'paddle');
@@ -86,6 +115,9 @@ function create() {
     paddle2.body.immovable = true;
     paddle2.body.bounce.set(1);
        paddle2.body.enable = true;
+
+
+     startBall();
     //game.physics.p2.enable(paddle2, false);
     //paddle2.body.fixedRotation = true;
     //paddle2.body.damping = .5;
@@ -130,8 +162,7 @@ function create() {
     
 
     bmpText = game.add.bitmapText(270, 500, 'carrier_command', 'Player 1: Q&A \nPlayer 2: O&L', 46);
-
-    
+  	scoreText = game.add.bitmapText(270, 0, 'carrier_command', 'Player 1:' + scorePlayer1 + ' Player 2:' + scorePlayer2, 24);
 
 
     
@@ -141,7 +172,10 @@ function create() {
 
 
 
+
+
 function update(){
+	
 
 	paddle1.body.velocity.y = 0;
 	paddle2.body.velocity.y = 0;
@@ -149,6 +183,7 @@ function update(){
     if (game.input.keyboard.isDown(Phaser.Keyboard.Q))
     {
     	paddle1.body.velocity.y = -gameProperties.paddleSpeed;
+    	
     }
     else if (game.input.keyboard.isDown(Phaser.Keyboard.A))
     {
@@ -172,8 +207,32 @@ function update(){
     	paddle2.body.x = 1180;
     }
 
+    game.time.slowMotion = 1.0;
+
+    if(game.input.keyboard.isDown(Phaser.Keyboard.E))
+    {
+    	game.time.slowMotion = 2.0;
+    }
+
 game.physics.arcade.collide(ball, paddle2, collisionHandler, null, game);
 game.physics.arcade.collide(ball, paddle1, collisionHandler, null, game);
+
+	if(ball.x<50)
+	{
+		startDirection = -1;
+		startBall();
+		scorePlayer2++;
+
+	}
+	else if(ball.x > 1240)
+	{
+		startDirection = 1;
+		scorePlayer1++;
+		startBall();
+	}
+		//scoreText.destroy();
+	 	scoreText.setText('Player 1:' + scorePlayer1 + ' Player 2:' + scorePlayer2, 24);
+	
 
 }
 
@@ -190,11 +249,11 @@ function collisionHandler (ball, paddle) {
         
     else if(segmentHit >= paddle.height/2 && paddle.x < gameProperties.screenWidth * 0.5)
     {
-        game.physics.arcade.velocityFromAngle(45, gameProperties.ballVelocity, ball.body.velocity);
+        game.physics.arcade.velocityFromAngle(game.rnd.between(15,70), gameProperties.ballVelocity, ball.body.velocity);
     }
     else if (paddle.x < gameProperties.screenWidth * 0.5&& paddle.x  < gameProperties.screenWidth * 0.5)
     {
-    	game.physics.arcade.velocityFromAngle(315, gameProperties.ballVelocity, ball.body.velocity);
+    	game.physics.arcade.velocityFromAngle(game.rnd.between(345,290), gameProperties.ballVelocity, ball.body.velocity);
     }
 
     if(segmentHit <= 5/8 * paddle.height && segmentHit >= 3/8 * paddle.height && paddle.x > gameProperties.screenWidth * 0.5)
@@ -204,11 +263,11 @@ function collisionHandler (ball, paddle) {
         
     else if(segmentHit >= paddle.height/2 && paddle.x > gameProperties.screenWidth * 0.5)
     {
-        game.physics.arcade.velocityFromAngle(135, gameProperties.ballVelocity, ball.body.velocity);
+        game.physics.arcade.velocityFromAngle(game.rnd.between(170,135), gameProperties.ballVelocity, ball.body.velocity);
     }
     else if (paddle.x > gameProperties.screenWidth * 0.5)
     {
-    	game.physics.arcade.velocityFromAngle(225, gameProperties.ballVelocity, ball.body.velocity);
+    	game.physics.arcade.velocityFromAngle(game.rnd.between(190,225), gameProperties.ballVelocity, ball.body.velocity);
     }
 
     
