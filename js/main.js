@@ -108,7 +108,7 @@ function preload() {
    game.load.audio('hit', 'assets/sound/hit.wav');
    game.load.audio('background', 'assets/sound/backgroundLoop.wav');
    game.load.image('1player', 'assets/sprites/1player.png');
-   game.load.image('2player', 'assets/sprites/2Player.png');
+   game.load.image('2player', 'assets/sprites/2player.png');
 
 }
 
