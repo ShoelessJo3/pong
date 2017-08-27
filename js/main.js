@@ -99,14 +99,16 @@ function init(){
 }
 
 function preload() {
-    Phaser.StageScaleMode.EXACT_FIT = 0;
+
+
+	//game.stage.scaleMode = Phaser.StageScaleMode.EXACT_FIT;
  game.load.image('paddle', 'assets/sprites/betterpaddle.png');
  game.load.image('ball', 'assets/sprites/ball2.png');
  game.load.bitmapFont('carrier_command', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
    game.load.audio('hit', 'assets/sound/hit.wav');
    game.load.audio('background', 'assets/sound/backgroundLoop.wav');
    game.load.image('1player', 'assets/sprites/1player.png');
-   game.load.image('2player', 'assets/sprites/2player.png');
+   game.load.image('2player', 'assets/sprites/2Player.png');
 
 }
 
@@ -210,7 +212,8 @@ function create() {
   	scoreText = game.add.bitmapText(270, 0, 'carrier_command', 'Player 1:' + scorePlayer1 + ' Player 2:' + scorePlayer2, 24);
   	winText =  game.add.bitmapText(270, 50, 'carrier_command',"Press a button to start.", 24);
   	startDemo();   
-
+//game.stage.scale.startFullScreen();
+game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
 
 
 }
