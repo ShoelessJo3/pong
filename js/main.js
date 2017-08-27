@@ -115,7 +115,7 @@ function preload() {
 function startBall(){
 	ball.reset(gameProperties.startx, gameProperties.starty);
 	//ball.body.velocity.x = 350;
-
+//thiss
 	ball.body.velocity.x = startDirection*350;
 }
 
