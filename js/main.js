@@ -99,6 +99,7 @@ function init(){
 }
 
 function preload() {
+    Phaser.StageScaleMode.EXACT_FIT = 0;
  game.load.image('paddle', 'assets/sprites/betterpaddle.png');
  game.load.image('ball', 'assets/sprites/ball2.png');
  game.load.bitmapFont('carrier_command', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
