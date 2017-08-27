@@ -22,6 +22,9 @@ var scorePlayer1 = 0;
 var scorePlayer2 = 0;
 var startDirection = 1;
 var scoreText;
+var timer;
+
+var singlePlayer = false;
 
 
 
@@ -30,8 +33,17 @@ var scoreText;
 function startDemo()
 {
 	 game.paused = true;
-	 game.input.onDown.add(unpause, self);
+	 buttonSingle = game.add.button(game.world.centerX - 200, 400, '1player', unpause1, this);
+	 buttonSingle.scale.set(3);
+	 buttonSingle.smoothed = false;
+
+	buttonTwo = game.add.button(game.world.centerX + 100, 400, '2player', unpause2, this);
+	buttonTwo.scale.set(3);
+	 buttonTwo.smoothed = false;
+	// game.input.onDown.add(unpause, self);
 	 startBall();
+
+
 	 
 
 }
@@ -43,6 +55,35 @@ function unpause(event)
 		game.paused = false;
 		console.log(event);
 		winText.setText('');
+		buttonSingle.destroy();
+		buttonTwo.destroy();
+	}
+}
+
+function unpause1(event)
+{
+	if(game.paused)
+	{
+
+		game.paused = false;
+		singlePlayer = true;
+		console.log(event);
+		winText.setText('');
+		buttonSingle.destroy();
+		buttonTwo.destroy();
+	}
+}
+
+function unpause2(event)
+{
+	if(game.paused)
+	{
+		game.paused = false;
+		singlePlayer = false;
+		console.log(event);
+		winText.setText('');
+		buttonSingle.destroy();
+		buttonTwo.destroy();
 	}
 }
 
@@ -62,7 +103,9 @@ function preload() {
  game.load.image('ball', 'assets/sprites/ball2.png');
  game.load.bitmapFont('carrier_command', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
    game.load.audio('hit', 'assets/sound/hit.wav');
-   game.load.audio('background', 'assets/sound/backgroundLoop.wav')
+   game.load.audio('background', 'assets/sound/backgroundLoop.wav');
+   game.load.image('1player', 'assets/sprites/1player.png');
+   game.load.image('2player', 'assets/sprites/2Player.png');
 
 }
 
@@ -81,6 +124,15 @@ var cursors;
 var customBounds;
 var font;
 function create() {
+	timer = game.time.create(false);
+
+    //  Set a TimerEvent to occur after 3 seconds
+    //timer.add(3000, fadePictures, this);
+
+    //  Start the timer running - this is important!
+    //  It won't start automatically, allowing you to hook it to button events and the like.
+    timer.start();
+
 	sounds = game.sound.play('background');
 	  	sounds.loopFull();
 
@@ -155,8 +207,8 @@ function create() {
 
     bmpText = game.add.bitmapText(270, 500, 'carrier_command', 'Player 1: Q&A \nPlayer 2: O&L', 46);
   	scoreText = game.add.bitmapText(270, 0, 'carrier_command', 'Player 1:' + scorePlayer1 + ' Player 2:' + scorePlayer2, 24);
-  	winText =  game.add.bitmapText(270, 50, 'carrier_command',"Click anywhere to start.", 24);
-  	startDemo();    
+  	winText =  game.add.bitmapText(270, 50, 'carrier_command',"Press a button to start.", 24);
+  	startDemo();   
 
 
 
@@ -188,11 +240,11 @@ function update(){
     	paddle1.body.x = 100;
     }
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.O))
+    if (game.input.keyboard.isDown(Phaser.Keyboard.O) && !singlePlayer)
     {
     	paddle2.body.velocity.y = -gameProperties.paddleSpeed;
     }
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.L))
+    else if (game.input.keyboard.isDown(Phaser.Keyboard.L) && !singlePlayer)
     {
         paddle2.body.velocity.y = gameProperties.paddleSpeed;
     }
@@ -236,6 +288,15 @@ game.physics.arcade.collide(ball, paddle1, collisionHandler, null, game);
 	{
 		win("player2");
 	}	
+	console.log(singlePlayer);
+/*	paddle2.body.y = ball.body.y + ball.body.height/2 - paddle2.body.height/2;
+	if(ball.body.x > 1100)
+		paddle2.body.y = 100*Math.sin(timer.elapsed/60) + ball.body.y + ball.body.height/2 - paddle2.body.height/2;
+*/
+	if(singlePlayer)
+	{
+		paddle2.body.velocity.y = 3*(ball.body.y-paddle2.body.y);//-200;
+	}
 
 }
 
