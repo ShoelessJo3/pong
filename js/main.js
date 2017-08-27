@@ -1,5 +1,4 @@
 var game = new Phaser.Game(1280, 600, Phaser.AUTO, 'phaser-example', { preload: preload, create: create, update: update, render: render});
-
 var gameProperties = {
     screenWidth: 640,
     screenHeight: 480,
@@ -14,8 +13,11 @@ var gameProperties = {
     ballRandomStartingAngleRight: [-60, 60],
     paddleSpeed: 700,
     scoreToWin: 11,
-    startx: 650,
+    startx: 640,
     starty: 300,
+    paddleFPS: 10,
+    segmentHeight: 10,
+    segmentWidth: 5,
 }
 
 var scorePlayer1 = 0;
@@ -87,7 +89,7 @@ function unpause2(event)
 	}
 }
 
-var hitit;
+var centerLine;
 
 function init(){
 
@@ -107,8 +109,12 @@ function preload() {
  game.load.bitmapFont('carrier_command', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
    game.load.audio('hit', 'assets/sound/hit.wav');
    game.load.audio('background', 'assets/sound/backgroundLoop.wav');
+   game.load.audio('winning', 'assets/sound/winning.wav');
    game.load.image('1player', 'assets/sprites/1player.png');
    game.load.image('2player', 'assets/sprites/2player.png');
+   game.load.atlasJSONHash('keys', 'assets/sprites/New Piskel.png', 'assets/sprites/New Piskel.json')
+
+
 
 }
 
@@ -122,22 +128,78 @@ function startBall(){
 
 //a
 var winText;
+var title;
 var paddle1;
 var cursors;
 var customBounds;
 var font;
+
+var qKey;
+var aKey;
+var oKey;
+var lKey;
+var upPadde1;
+var downPaddle1;
+var upPaddle2;
+var downPaddle2;
+
+
 function create() {
+
+	
+	var graphics = game.add.graphics(100, 100);
+
+    // set a fill and line style
+    graphics.beginFill(0xFF3300);
+    //graphics.drawRect(50, 250, 100, 100);
+    
+    graphics.lineStyle(2, 0xFFFFFF, 1);
+	for(var y = 0;  y < 600;y += 20) //i equiv to y
+	{
+		graphics.moveTo(game.world.centerX - 100, y);
+		graphics.lineTo(game.world.centerX - 100, y+10);
+		console.log(y+gameProperties.segementHeight);
+	}
+	
+
 	timer = game.time.create(false);
 
-    //  Set a TimerEvent to occur after 3 seconds
-    //timer.add(3000, fadePictures, this);
+	qKey = game.add.sprite(50,500,'keys');
+	qKey.anchor.set(0.5,0.5);
+	qKey.scale.set(3);
+	qKey.smoothed = false;
+	qKey.animations.add('key',[0,1,2,1,0],gameProperties.paddleFPS,false);
+	qKey.animations.play('key');
 
-    //  Start the timer running - this is important!
-    //  It won't start automatically, allowing you to hook it to button events and the like.
-    timer.start();
+	aKey = game.add.sprite(150,500,'keys');
+	aKey.anchor.set(0.5,0.5);
+	aKey.scale.set(3);
+	aKey.animations.add('key',[3,4,5,4,3],gameProperties.paddleFPS,false);
+	aKey.animations.play('key');
+
+	oKey = game.add.sprite(1130,500,'keys');
+	oKey.anchor.set(0.5,0.5);
+	oKey.scale.set(3);
+	oKey.animations.add('key',[6,7,8,7,6],gameProperties.paddleFPS,false);
+	oKey.animations.play('key');
+
+	lKey = game.add.sprite(1230,500,'keys');
+	lKey.anchor.set(0.5,0.5);
+	lKey.scale.set(3);
+	lKey.smoothed = false;
+	lKey.animations.add('key',[9,10,11,10,9],gameProperties.paddleFPS,false);
+	lKey.animations.play('key');
+
+
+
+   
 
 	sounds = game.sound.play('background');
-	  	sounds.loopFull();
+	sounds.loopFull();
+
+	
+
+
 
 	
 	var i = game.add.image(100,100,font)
@@ -208,12 +270,28 @@ function create() {
     		
     
 
-    bmpText = game.add.bitmapText(270, 500, 'carrier_command', 'Player 1: Q&A \nPlayer 2: O&L', 46);
-  	scoreText = game.add.bitmapText(270, 0, 'carrier_command', 'Player 1:' + scorePlayer1 + ' Player 2:' + scorePlayer2, 24);
-  	winText =  game.add.bitmapText(270, 50, 'carrier_command',"Press a button to start.", 24);
+    //bmpText = game.add.bitmapText(270, 500, 'carrier_command', 'Player 1: Q&A \nPlayer 2: O&L', 46);
+  	scoreText = game.add.bitmapText(450, 100, 'carrier_command', '1-' + scorePlayer1 + '   2-' + scorePlayer2, 24);
+  	scoreText.anchor.set(0.5,0.5);
+  	scoreText.x = game.world.centerX;
+
+  	title = game.add.bitmapText(450,0, 'carrier_command', 'PONG');
+  	title.anchor.set(.5,0);
+  	title.x = game.world.centerX;
+
+  	winText =  game.add.bitmapText(450, 50, 'carrier_command',"Press a button to start.", 24);
+  	winText.anchor.set(.5,0);
+  	winText.x = game.world.centerX;
+
   	startDemo();   
 //game.stage.scale.startFullScreen();
 game.scale.scaleMode = Phaser.ScaleManager.EXACT_FIT;
+	upPaddle1 = game.input.keyboard.addKey(Phaser.Keyboard.Q);
+	downPaddle1 = game.input.keyboard.addKey(Phaser.Keyboard.A);
+	upPaddle2 = game.input.keyboard.addKey(Phaser.Keyboard.O);
+	downPaddle2 = game.input.keyboard.addKey(Phaser.Keyboard.L);
+
+	
 
 
 }
@@ -230,27 +308,35 @@ function update(){
 	paddle1.body.velocity.y = 0;
 	paddle2.body.velocity.y = 0;
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.Q))
+
+
+
+
+    if (upPaddle1.isDown)
     {
     	paddle1.body.velocity.y = -gameProperties.paddleSpeed;
-    	
+    	qKey.animations.play('key');
+	
     }
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.A))
+    else if (downPaddle1.isDown)
     {
         paddle1.body.velocity.y = gameProperties.paddleSpeed;
+        aKey.animations.play('key');
     }
     if(paddle1.body.x != 100)
     {
     	paddle1.body.x = 100;
     }
 
-    if (game.input.keyboard.isDown(Phaser.Keyboard.O) && !singlePlayer)
+    if (upPaddle2.isDown && !singlePlayer)
     {
     	paddle2.body.velocity.y = -gameProperties.paddleSpeed;
+    	oKey.animations.play('key');
     }
-    else if (game.input.keyboard.isDown(Phaser.Keyboard.L) && !singlePlayer)
+    else if (downPaddle2.isDown && !singlePlayer)
     {
         paddle2.body.velocity.y = gameProperties.paddleSpeed;
+        lKey.animations.play('key');
     }
     if(paddle2.body.x != 1180)
     {
@@ -281,7 +367,7 @@ game.physics.arcade.collide(ball, paddle1, collisionHandler, null, game);
 		startBall();
 	}
 		//scoreText.destroy();
-	 	scoreText.setText('Player 1:' + scorePlayer1 + ' Player 2:' + scorePlayer2, 24);
+	 	scoreText.setText('1-' + scorePlayer1 + '  2-' + scorePlayer2, 24);
 
 	if(scorePlayer1 >= gameProperties.scoreToWin)
 	{
@@ -292,7 +378,7 @@ game.physics.arcade.collide(ball, paddle1, collisionHandler, null, game);
 	{
 		win("player2");
 	}	
-	console.log(singlePlayer);
+	//console.log(singlePlayer);
 /*	paddle2.body.y = ball.body.y + ball.body.height/2 - paddle2.body.height/2;
 	if(ball.body.x > 1100)
 		paddle2.body.y = 100*Math.sin(timer.elapsed/60) + ball.body.y + ball.body.height/2 - paddle2.body.height/2;
@@ -300,6 +386,14 @@ game.physics.arcade.collide(ball, paddle1, collisionHandler, null, game);
 	if(singlePlayer)
 	{
 		paddle2.body.velocity.y = 3*(ball.body.y-paddle2.body.y);//-200;
+	}
+	if(singlePlayer && paddle2.body.velocity.y > 0)
+	{
+		lKey.animations.play('key');
+	}
+	else if(singlePlayer)
+	{
+		oKey.animations.play('key');
 	}
 
 }
