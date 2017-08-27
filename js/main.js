@@ -46,6 +46,8 @@ function unpause(event)
 	}
 }
 
+var hitit;
+
 function init(){
 
 	game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
@@ -59,6 +61,9 @@ function preload() {
  game.load.image('paddle', 'assets/sprites/betterpaddle.png');
  game.load.image('ball', 'assets/sprites/ball2.png');
  game.load.bitmapFont('carrier_command', 'assets/fonts/bitmapFonts/carrier_command.png', 'assets/fonts/bitmapFonts/carrier_command.xml');
+   game.load.audio('hit', 'assets/sound/hit.wav');
+   game.load.audio('background', 'assets/sound/backgroundLoop.wav')
+
 }
 
 function startBall(){
@@ -76,7 +81,9 @@ var cursors;
 var customBounds;
 var font;
 function create() {
-	
+	sounds = game.sound.play('background');
+	  	sounds.loopFull();
+
 	
 	var i = game.add.image(100,100,font)
 	var bounds = new Phaser.Rectangle(100, 100, 400, 400);
@@ -150,6 +157,9 @@ function create() {
   	scoreText = game.add.bitmapText(270, 0, 'carrier_command', 'Player 1:' + scorePlayer1 + ' Player 2:' + scorePlayer2, 24);
   	winText =  game.add.bitmapText(270, 50, 'carrier_command',"Click anywhere to start.", 24);
   	startDemo();    
+
+
+
 }
 
 
@@ -239,14 +249,19 @@ function win(player)
 }
 
 function collisionHandler (ball, paddle) {
+	  		 music = game.sound.play('hit');
 
-    game.stage.backgroundColor = '#FFF';
-    game.time.events.add(Phaser.Timer.SECOND * .1, flash, game);
+
+
+
+    //game.stage.backgroundColor = '#FFF';
+   // game.time.events.add(Phaser.Timer.SECOND * .1, flash, game);
     var returnAngle = 0;
     var segmentHit = Math.floor(ball.y - paddle.y);
     if(segmentHit <= 5/8 * paddle.height && segmentHit >= 3/8 * paddle.height && paddle.x < gameProperties.screenWidth * 0.5)
    	{
    		game.physics.arcade.velocityFromAngle(0, gameProperties.ballVelocity, ball.body.velocity);
+
    	}
         
     else if(segmentHit >= paddle.height/2 && paddle.x < gameProperties.screenWidth * 0.5)
